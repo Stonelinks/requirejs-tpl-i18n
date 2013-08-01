@@ -1,5 +1,6 @@
 /**
- * Adapted from the official plugin text.js
+ * Adapted from the plugin requirejs-tpl.js
+ * see https://github.com/ZeeAgency/requirejs-tpl
  *
  * Uses UnderscoreJS micro-templates : http://documentcloud.github.com/underscore/#template
  * @author Julien Cabanès <julien@zeeagency.com>
@@ -9,59 +10,88 @@
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details.
  */
-/*jslint regexp: false, nomen: false, plusplus: false, strict: false */
-/*global require: false, XMLHttpRequest: false, ActiveXObject: false,
-  define: false, window: false, process: false, Packages: false,
-  java: false */
-
 (function() {
-//>>excludeStart('excludeTpl', pragmas.excludeTpl)
   var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
 
-    xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
+  xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
 
-    bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
+  bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
 
-    buildMap = [],
+  buildMap = [],
 
-    templateSettings = {
-      evaluate: /<%([\s\S]+?)%>/g,
-      interpolate: /<%=([\s\S]+?)%>/g
-    },
+  // A lot of this was ripped out of underscore
 
-    /**
-     * JavaScript micro-templating, similar to John Resig's implementation.
-     * Underscore templating handles arbitrary delimiters, preserves whitespace,
-     * and correctly escapes quotes within interpolated code.
-     */
-    template = function(str, data) {
-      var c = templateSettings;
-      var tmpl = 'var __p=[],print=function(){__p.push.apply(__p,arguments);};' +
-        'with(obj||{}){__p.push(\'' +
-        str.replace(/\\/g, '\\\\')
-          .replace(/'/g, "\\'")
-          .replace(c.interpolate, function(match, code) {
-          return "'," + code.replace(/\\'/g, "'") + ",'";
-          })
-          .replace(c.evaluate || null, function(match, code) {
-          return "');" + code.replace(/\\'/g, "'")
-                    .replace(/[\r\n\t]/g, ' ') + "; __p.push('";
-          })
-          .replace(/\r/g, '')
-          .replace(/\n/g, '')
-          .replace(/\t/g, '')
-          + "');}return __p.join('');";
-      return tmpl;
+  // By default, Underscore uses ERB-style template delimiters, change the
+  // following template settings to use alternative delimiters.
+  templateSettings = {
+    evaluate: /<%([\s\S]+?)%>/g,
+    interpolate: /<%=([\s\S]+?)%>/g,
+    escape: /<%-([\s\S]+?)%>/g
+  },
 
-      /** /
-      var func = new Function('obj', tmpl);
-      return data ? func(data) : func;
-      /**/
-    };
-//>>excludeEnd('excludeTpl')
+  // When customizing `templateSettings`, if you don't want to define an
+  // interpolation, evaluation or escaping regex, we need one that is
+  // guaranteed not to match.
+  noMatch = /(.)^/,
+
+  // Certain characters need to be escaped so that they can be put into a
+  // string literal.
+  escapes = {
+    "'": "'",
+    '\\': '\\',
+    '\r': 'r',
+    '\n': 'n',
+    '\t': 't',
+    '\u2028': 'u2028',
+    '\u2029': 'u2029'
+  },
+
+  escaper = /\\|'|\r|\n|\t|\u2028|\u2029/g,
+
+  // taken and modified from underscores microtemplating function
+  template = function(text) {
+    var render;
+    settings = templateSettings;
+
+    // Combine delimiters into one regular expression via alternation.
+    var matcher = new RegExp([
+      (settings.escape || noMatch).source,
+      (settings.interpolate || noMatch).source,
+      (settings.evaluate || noMatch).source
+    ].join('|') + '|$', 'g');
+
+    // Compile the template source, escaping string literals appropriately.
+    var index = 0;
+    var source = "__p+='";
+    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
+      source += text.slice(index, offset)
+        .replace(escaper, function(match) { return '\\' + escapes[match]; });
+
+      if (escape) {
+        source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
+      }
+      if (interpolate) {
+        source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
+      }
+      if (evaluate) {
+        source += "';\n" + evaluate + "\n__p+='";
+      }
+      index = offset + match.length;
+      return match;
+    });
+    source += "';\n";
+
+    source = 'with(obj||{}){\n' + source + '}\n';
+
+    source = "var __t,__p='',__j=Array.prototype.join," +
+      "print=function(){__p+=__j.call(arguments,'');};\n" +
+      source + 'return __p;\n';
+
+    // only return function body
+    return source;
+  };
 
   define(function() {
-//>>excludeStart('excludeTpl', pragmas.excludeTpl)
     var tpl;
 
     var get, fs;
@@ -176,7 +206,7 @@
 
           if (!config.isBuild) {
           //if(typeof window !== "undefined" && window.navigator && window.document) {
-            content = new Function('obj', content);
+            content = new Function('obj', '_', content);
           }
           content = strip ? tpl.strip(content) : content;
 
@@ -198,8 +228,6 @@
         }
       }
     };
-//>>excludeEnd('excludeTpl')
     return function() {};
   });
-//>>excludeEnd('excludeTpl')
 }());
