@@ -1,0 +1,11 @@
+{
+  "name"          : "requirejs-tpl-i18n",
+  "description"   : "A fork of requirejs-tpl to enable compatability with django's i18n library",
+  "repository"    : "git://github.com/Stonelinks/requirejs-tpl-i18n",
+  "author"        : "Lucas Doyle <https://github.com/Stonelinks>",
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-exec": "*",
+    "grunt-regarde": "~0.1.1"
+  }
+}
