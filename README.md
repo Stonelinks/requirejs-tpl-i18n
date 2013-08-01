@@ -2,6 +2,8 @@
 
 Uses Underscore.js micro-templates implementation.
 
+This is a fork to enable easy usage of django's i18n javascript library from within a template
+
 As modules, templates are stand-alone files (not in the DOM…) and they are served already **compiled**.
 
 Underscore.js **IS NOT** required, this plugin already contains the template method plus some AMD stuffs.
