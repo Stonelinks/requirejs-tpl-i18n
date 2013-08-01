@@ -74,7 +74,7 @@
         source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
       }
       if (translate) {
-        source += "'+\ngettext('" + translate.trim() + "')+\n'";
+        source += "'+\ngettext(" + translate.trim() + ")+\n'";
       }
       if (evaluate) {
         source += "';\n" + evaluate + "\n__p+='";
