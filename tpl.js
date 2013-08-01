@@ -26,8 +26,7 @@
   templateSettings = {
     evaluate: /<%([\s\S]+?)%>/g,
     interpolate: /<%=([\s\S]+?)%>/g,
-    translate: /<%t([\s\S]+?)%>/g,
-    escape: /<%-([\s\S]+?)%>/g
+    translate: /<%t([\s\S]+?)%>/g
   },
 
   // When customizing `templateSettings`, if you don't want to define an
@@ -54,7 +53,6 @@
 
     // Combine delimiters into one regular expression via alternation.
     var matcher = new RegExp([
-      (templateSettings.escape || noMatch).source,
       (templateSettings.translate || noMatch).source,
       (templateSettings.interpolate || noMatch).source,
       (templateSettings.evaluate || noMatch).source
@@ -63,13 +61,10 @@
     // Compile the template source, escaping string literals appropriately.
     var index = 0;
     var source = "__p+='";
-    text.replace(matcher, function(match, escape, translate, interpolate, evaluate, offset) {
+    text.replace(matcher, function(match, translate, interpolate, evaluate, offset) {
       source += text.slice(index, offset)
         .replace(escaper, function(match) { return '\\' + escapes[match]; });
 
-      if (escape) {
-        source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
-      }
       if (interpolate) {
         source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
       }
