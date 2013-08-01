@@ -51,15 +51,13 @@
 
   // taken and modified from underscores microtemplating function
   template = function(text) {
-    var render;
-    settings = templateSettings;
 
     // Combine delimiters into one regular expression via alternation.
     var matcher = new RegExp([
-      (settings.escape || noMatch).source,
-      (settings.translate || noMatch).source,
-      (settings.interpolate || noMatch).source,
-      (settings.evaluate || noMatch).source
+      (templateSettings.escape || noMatch).source,
+      (templateSettings.translate || noMatch).source,
+      (templateSettings.interpolate || noMatch).source,
+      (templateSettings.evaluate || noMatch).source
     ].join('|') + '|$', 'g');
 
     // Compile the template source, escaping string literals appropriately.
@@ -76,7 +74,6 @@
         source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
       }
       if (translate) {
-        console.log(translate);
         source += "'+\ngettext('" + translate.trim() + "')+\n'";
       }
       if (evaluate) {
