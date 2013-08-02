@@ -62,7 +62,9 @@
     var index = 0;
     var source = "__p+='";
     text.replace(matcher, function(match, translate, interpolate, evaluate, offset) {
-      source += text.slice(index, offset).replace(escaper, function(match) { return '\\' + escapes[match]; });
+      source += text.slice(index, offset).replace(escaper, function(match) {
+        return '\\' + escapes[match];
+      });
 
       if (interpolate) {
         source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
