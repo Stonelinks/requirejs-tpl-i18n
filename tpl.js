@@ -62,8 +62,7 @@
     var index = 0;
     var source = "__p+='";
     text.replace(matcher, function(match, translate, interpolate, evaluate, offset) {
-      source += text.slice(index, offset)
-        .replace(escaper, function(match) { return '\\' + escapes[match]; });
+      source += text.slice(index, offset).replace(escaper, function(match) { return '\\' + escapes[match]; });
 
       if (interpolate) {
         source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
@@ -81,9 +80,7 @@
 
     source = 'with(obj||{}){\n' + source + '}\n';
 
-    source = "var __t,__p='',__j=Array.prototype.join," +
-      "print=function(){__p+=__j.call(arguments,'');};\n" +
-      source + 'return __p;\n';
+    source = "var __t,__p='';\n" + source + 'return __p;\n';
 
     // only return function body
     return source;
