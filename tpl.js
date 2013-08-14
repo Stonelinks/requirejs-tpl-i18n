@@ -207,6 +207,8 @@
           }
           content = strip ? tpl.strip(content) : content;
 
+          content.url = url;
+
           if (config.isBuild && config.inlineText) {
             buildMap[name] = content;
           }
